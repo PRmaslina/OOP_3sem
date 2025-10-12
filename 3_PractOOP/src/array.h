@@ -10,7 +10,10 @@ class Array
     
 public:
     Array();
+    Array(int newSize);
     Array(int newSize, number* newArr);
+    Array(const Array& other); // Конструктор копирования
+    Array& operator=(const Array& other); // Оператор присваивания
     ~Array();
     
     int getSize();

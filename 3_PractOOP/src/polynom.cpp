@@ -5,30 +5,47 @@
 #include <cmath>
 
 Polynom::Polynom() {
-	coeffs = Array();
-	coeffs.append(0);
-	roots = Array();
-	roots.append(0);
-	degree = 0;
+    coeffs = Array(1);
+    roots = Array(1);
+    degree = 0;
+    printType = 1;
 }
 
 Polynom::Polynom(number a, Array _roots) {
-	coeffs = Array();
-	roots = Array();
-	for (int i = 0; i < _roots.getSize(); i++) {
-		roots.append(_roots.get(i));
-	}
-	for (int i = 0; i < _roots.getSize(); i++) {
-		number elem = _roots.get(i);
-		if (roots.find(elem.getConj()) < 0) roots.append(elem.getConj());
-	}
-	coeffs.changeSize(roots.getSize());
-	calcCoeffs(a, roots);
-	degree = roots.getSize();
+    roots = _roots;
+    degree = roots.getSize();
+    coeffs = Array(degree + 1);
+    calcCoeffs(a, roots);
+    printType = 1;
+}
+
+void Polynom::calcCoeffs(number a, Array _roots) {
+    int n = _roots.getSize();
+    degree = n;
+
+    Array coeffsTemp(n + 1);
+    for (int i = 0; i <= n; i++) coeffsTemp.put(i, 0.0);
+
+    coeffsTemp.put(n, a);
+
+    for (int k = 0; k < n; k++) {
+        number root = _roots.get(k);
+
+        for (int i = n - k; i <= n; i++) {
+            number prevCoeff = (i > 0 ? coeffsTemp.get(i - 1) : 0.0);
+            number newCoeff = prevCoeff - coeffsTemp.get(i) * root;
+            coeffsTemp.put(i - 1, newCoeff);
+        }
+    }
+
+    coeffs.changeSize(n + 1);
+    for (int i = 0; i <= n; i++) {
+        coeffs.put(i, coeffsTemp.get(i));
+    }
 }
 
 number Polynom::getCoeff(int n) {
-	return coeffs.get(n);
+    return coeffs.get(n);
 }
 
 number Polynom::getRoot(int n) {
@@ -36,70 +53,79 @@ number Polynom::getRoot(int n) {
 }
 
 number Polynom::solve(number x) {
-	number solution = coeffs.get(degree);
-	for (int i = 0; i < degree; i++) solution *= x - roots.get(i);
-	return solution;	
+    number solution = coeffs.get(degree);
+    for (int i = 0; i < degree; i++) {
+        solution *= x - roots.get(i);
+    }
+    return solution;
 }
 
-void Polynom::calcCoeffs(number a, Array _roots) {
-	for (int i = 0; i < pow(2, _roots.getSize()); i++) {
-		int n = i, k = 0;
-		number temp = a;
-		for (int j = 0; j < _roots.getSize(); j++) {
-			temp = (n % 2) ? _roots.get(j) : 1;
-			k += n % 2;
-		       	n /= 2;
-	       	}
-		coeffs.put(k, temp);
-	}	
-}
-
-void printw(char* _, Polynom p) {
-	switch (p.getPrintType()) {
-	case 1: {
-		for (int i = p.getDegree(); i > 0; i--) {
-			printw("("); printw("", p.getCoeff(i)); (i > 1) ? printw(")*x^%d+", i) : printw(")*x+");
-		}
-		printw("("); printw("", p.getCoeff(0)); printw(")");
-		break; }
-	case 2: {
-		printw("("); printw("", p.getCoeff(p.getDegree())); printw(")");
-		for (int i = 0; i < p.getDegree(); i++) {
-			printw("(x - ("); printw("", p.getRoot(i)); printw("))");
-		}
-		break; }
-	}
-	}
-
-void scanw(char* _, Polynom* p) {
-	number a;
-	Array roots;
-	int n;
-	printw("Great coefficient: "); scanw("", &a);
-	scanw("Number of roots: %d", &n);
-	for (int i = 0; i < n; i++) {
-		number root;
-		scanw("", &root);
-		roots.append(root);
-	}
-	*p = Polynom(a, roots);
-}
 
 int Polynom::getDegree() {
-       	return degree;
+    return degree;
 }
 
 void Polynom::setPrintType(int type) {
-	switch(type) {
-	case 1:
-		printType = 1; break;
-	case 2:
-		printType = 2; break;
-	default: 
-		break;
-	}	
+    if (type == 1 || type == 2) {
+        printType = type;
+    }
 }
 
 int Polynom::getPrintType() {
-	return printType;
+    return printType;
+}
+
+void printw(const char* _, Polynom p) {
+	number coeff;
+    switch (p.getPrintType()) {
+    case 1: {
+		int n = p.getDegree();
+		number coeff = p.getCoeff(n);
+		printw("", coeff);
+		printw("*x^%d", n);
+
+		for (int i = n - 1; i >= 0; i--) {
+			coeff = p.getCoeff(i);
+			if (coeff == 0.0) continue;
+
+			printw(" + (");
+			printw("", coeff);
+			printw(")");
+
+			if (i > 0)
+				printw("*x");
+			if (i > 1)
+				printw("^%d", i);
+    	}
+    }
+        break;
+    case 2: {
+        
+        number a = p.getCoeff(p.getDegree());
+        printw("", a);
+        
+        for (int i = 0; i < p.getDegree(); i++) {
+            number root = p.getRoot(i);
+            printw(" * (x - ("); printw("", root); printw("))");
+        }
+        break;
+    }
+    }
+}
+
+void scanw(const char* _, Polynom* p) {
+    number a;
+    Array roots;
+    int n;
+    
+    scanw("%lf", &a);     
+    scanw("%d", &n);
+    
+    for (int i = 0; i < n; i++) {
+        number root;
+        scanw("", &root);
+        roots.append(root);
+    }
+    
+    *p = Polynom(a, roots);
 }

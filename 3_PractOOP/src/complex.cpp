@@ -21,11 +21,11 @@ TComplex::TComplex(double r, double i){
 
 // получение значений
 
-double TComplex::getReal() const {  // Добавить const
+double TComplex::getReal() const {
   return real;
 }
 
-double TComplex::getImag() const {  // Добавить const
+double TComplex::getImag() const {
   return imag;
 }
 
@@ -152,7 +152,6 @@ bool TComplex::operator==(const TComplex& T) {
 	return real == T.getReal() && imag == T.getImag();
 }
 
-
 //Корень
 
 TComplex sqrt(TComplex T) {
@@ -161,7 +160,7 @@ TComplex sqrt(TComplex T) {
     return TComplex(rValue * std::cos(theta), rValue * std::sin(theta));
 }
 
-// Ввод-вывод -  не получаеться перегрузить ncurses
+// ввод-вывод
 
 void scanw(const char* _, TComplex* T) {
     double r,i;
@@ -170,13 +169,29 @@ void scanw(const char* _, TComplex* T) {
     T->putImag(i);
 }
 
-void printw(const char* _, TComplex T){
-    if (T.getImag() >= 0) {
-        printw("%lf + %lfi", T.getReal(), T.getImag());
-    } else {
-        printw("%lf - %lfi", T.getReal(), -T.getImag());
+
+void printw(const char*, TComplex &T) {
+    double real = T.getReal();
+    double imag = T.getImag();
+    const double EPS = 1e-9;
+    if (std::fabs(real) < EPS && std::fabs(imag) < EPS) {
+      ::printw("0");
+    }
+    else if (std::fabs(imag) < EPS) {
+      ::printw("%.3lf", real);
+    }
+    else if (std::fabs(real) < EPS) {
+      ::printw("%.3lfi", imag);
+    }
+    else {
+        if (imag > 0){
+          ::printw("%.3lf+%.3lfi", real, imag);
+        } else {
+          ::printw("%.3lf%.3lfi", real, imag);
+        }
     }
 }
+
 
 TComplex TComplex::getConj() {
 	return TComplex(real, -imag);

@@ -42,7 +42,7 @@ public:
     TComplex& operator /=(const double&);
     TComplex& operator = (const double&);
     bool operator ==(const TComplex&);
-    friend void printw(const char*, TComplex);
+    friend void printw(const char*, TComplex&);
     friend void scanw(const char*, TComplex*);
     friend TComplex sqrt(TComplex T);
 

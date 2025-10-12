@@ -4,8 +4,8 @@
 #include "number.h"
 #include "array.h"
 
-class Polynom
-{
+class Polynom 
+{	
 	int degree;
 	Array coeffs;
 	Array roots;
@@ -14,14 +14,15 @@ class Polynom
 public:
 	Polynom();
 	Polynom(number, Array);
+
 	number getCoeff(int);
 	number getRoot(int);
 	number solve(number);
 	int getDegree();
 	void setPrintType(int);
 	int getPrintType();
-	friend void printw(char*, Polynom);
-	friend void scanw(char*, Polynom*);
+	friend void printw(const char*, Polynom);
+	friend void scanw(const char*, Polynom*);
 };
 
 #endif

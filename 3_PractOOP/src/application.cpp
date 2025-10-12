@@ -28,7 +28,7 @@ void ConsoleApp::startApp(Polynom& p){
 int ConsoleApp::choiseMenu(Polynom& p) {
     setlocale(LC_CTYPE, "");
     initscr();
-    int size, index;
+    // int size, index; оставил ненужные переменные
     int choise = 0;
     int press = 0;
     int x = 0, y = startY;
@@ -44,7 +44,7 @@ int ConsoleApp::choiseMenu(Polynom& p) {
     refresh();
     move(y, x);
     keypad(stdscr, TRUE);
-    while(choise != 6){
+    while(choise != 3){ // не изменил значение из-за чего выход не работал
     clear();
     y = startY;
     for (int i = 0; i < countRows; ++i, ++y) {
@@ -104,29 +104,31 @@ int ConsoleApp::choiseMenu(Polynom& p) {
     switch (choise)
     {
     case 0: {
-       	scanw("", &p); 
+        printw("Введите высший коэф, кол-во корней, корни многочлена разделяя всё клавишой enter:\n"); 
+        refresh();
+       	scanw(" ", &p);
         printw("\nНажмите любую клавишу для продолжения..."); 
         refresh();
         getch();
-        
         break; }
     case 1: {
-	int t = 1;
-	scanw("Выберите форму вывода [1/2]: %d", &t);
-	p.setPrintType(t);
-	printw("", p);
+	    int t = 1;
+        printw("Выберите форму вывода [1/2]: "); refresh();
+	    scanw("%d", &t);
+	    p.setPrintType(t);
+	    printw("", p);
         printw("\nНажмите любую клавишу для продолжения..."); 
         refresh();
         getch();
         break; }
     case 2: {
-	number x;
-	printw("Введите значение x: "); refresh(); scanw("", &x);
-	printw("p(x) = "); printw("", p.solve(x));
+	    number x, solve;
+	    printw("Введите значение x: "); refresh(); scanw("", &x);
+        solve = p.solve(x);
+	    printw("p(x) = "); printw("", solve);
         printw("\nНажмите любую клавишу для продолжения..."); 
         refresh();
         getch();
-        
         break; }
     }
     }
