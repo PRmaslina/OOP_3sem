@@ -111,12 +111,7 @@ QByteArray Server::processMessage(const QByteArray &data, const QHostAddress &se
         inputString(A,message,&p);
         response = outputString(p);
     }
-    else if (command == '4'  ){
-        response = QString("Hello from server! Your address: %1:%2")
-        .arg(sender.toString())
-            .arg(senderPort);
-    }
-    else if (command == '5'  ) {
+    else if (command == '4'  ) {
         number a = p.solve(toComplex(message));
         response = "значение в точке " + message + "  равно: " + complexOut(a);
     }
