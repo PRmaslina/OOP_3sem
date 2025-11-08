@@ -69,7 +69,7 @@ void MainWindow::on_PolynomInputButton_clicked()
     //inputString(ui->PolynomInputA->text(),ui->PolynomInputRoots->text(),&p);
     //ui->PolynomOut->setText(outputString(p));
     if (ui->PolynomInputA->text().isEmpty() || ui->PolynomInputRoots->text().isEmpty()) return;
-    QString response = "3" + ui->PolynomInputA->text() + " " + ui->PolynomInputRoots->text();
+    QString response = "3" + ui->PolynomInputA->text().trimmed() + " " + ui->PolynomInputRoots->text().trimmed();
     sendToServer(response.toUtf8());
 }
 
@@ -79,6 +79,6 @@ void MainWindow::on_PointButton_clicked()
     //number a = p.solve(toComplex(ui->PointInput->text()));
     //ui->OutputSolve->setText("значение в точке " + ui->PointInput->text() + "  равно: " + complexOut(a));
     if (ui->PolynomInputA->text().isEmpty() || ui->PolynomInputRoots->text().isEmpty() || ui->PointInput->text().isEmpty()) return;
-    QString response = "4" + ui->PointInput->text();
+    QString response = "4" + ui->PointInput->text().trimmed();
     sendToServer(response.toUtf8());
 }

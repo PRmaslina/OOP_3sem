@@ -105,10 +105,11 @@ QByteArray Server::processMessage(const QByteArray &data)
     }
     else if (command == '3'  ) {
         QString A;
-        for(int i = 1; message[i] != ' '; i++,message[i] = ' '){
+        for(int i = 1; message[i] != ' '; message[i] = ' ', i++){
             A+=message[i];
         }
-        message.remove(0, A.size() + 2);
+        message.remove(0, A.length() + 2);
+        qDebug() << A;
         qDebug() << message;
         inputString(A,message,&p);
         response = "3" + outputString(p);
