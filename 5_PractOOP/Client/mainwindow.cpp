@@ -46,17 +46,21 @@ void MainWindow::readPendingDatagrams()
     }
 }
 
+void MainWindow::sendToServer(QByteArray datagram) {
+    udpSocket->writeDatagram(datagram, QHostAddress(serverAddress), serverPort);
+}
+
 void MainWindow::on_OutputType1Button_clicked()
 {
     QString response = "1";
-    udpSocket->writeDatagram(response.toUtf8(), QHostAddress(serverAddress), serverPort);
+    sendToServer(response.toUtf8());
 }
 
 
 void MainWindow::on_OutputType2Button_clicked()
 {
     QString response = "2";
-    udpSocket->writeDatagram(response.toUtf8(), QHostAddress(serverAddress), serverPort);
+    sendToServer(response.toUtf8());
 }
 
 
@@ -66,7 +70,7 @@ void MainWindow::on_PolynomInputButton_clicked()
     //ui->PolynomOut->setText(outputString(p));
     if (ui->PolynomInputA->text().isEmpty() || ui->PolynomInputRoots->text().isEmpty()) return;
     QString response = "3" + ui->PolynomInputA->text() + " " + ui->PolynomInputRoots->text();
-    udpSocket->writeDatagram(response.toUtf8(), QHostAddress(serverAddress), serverPort);
+    sendToServer(response.toUtf8());
 }
 
 
@@ -76,5 +80,5 @@ void MainWindow::on_PointButton_clicked()
     //ui->OutputSolve->setText("значение в точке " + ui->PointInput->text() + "  равно: " + complexOut(a));
     if (ui->PolynomInputA->text().isEmpty() || ui->PolynomInputRoots->text().isEmpty() || ui->PointInput->text().isEmpty()) return;
     QString response = "4" + ui->PointInput->text();
-    udpSocket->writeDatagram(response.toUtf8(), QHostAddress(serverAddress), serverPort);
+    sendToServer(response.toUtf8());
 }

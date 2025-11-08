@@ -31,5 +31,6 @@ private:
     QUdpSocket *udpSocket;
     QString serverAddress;
     quint16 serverPort;
+    void sendToServer(QByteArray datagram);
 };
 #endif // MAINWINDOW_H
