@@ -166,6 +166,7 @@ TComplex toComplex(QString text) {
     TComplex T;
     QString number = "";
     text+= " ";
+    text.replace("-i", "-1i").replace("+i", "+1i");
     for(int i = 0; i < text.length()-1; i++){
         if(text[i] == '-'){
             number+=text[i];

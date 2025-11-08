@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 #include <cmath>
+#include <QDebug>
 
 Polynom::Polynom() {
     coeffs = Array(1);
@@ -124,10 +125,10 @@ void inputString(QString aText,QString text, Polynom* p) {
     QStringList list = text.split(" ");
     int n = list[0].toInt();
     list.removeAt(0);
-
     number root;
     for (int i = 0; i < n; i++) {
         root = toComplex(list[i]);
+        qDebug() << complexOut(root);
         roots.append(root);
     }
 

@@ -3,7 +3,7 @@
 Server::Server(QObject *parent)
     : QObject(parent)
     , m_udpSocket(nullptr)
-    , m_port(0)
+    , m_port(4444)
     , m_isRunning(false)
 {
 }
@@ -73,7 +73,7 @@ void Server::processDatagram(const QNetworkDatagram &datagram)
              << ":" << senderPort << "-" << data;
 
     // Обрабатываем сообщение и получаем ответ
-    QByteArray response = processMessage(data, senderAddress, senderPort);
+    QByteArray response = processMessage(data);
 
     // Отправляем ответ
     if (!response.isEmpty()) {
@@ -88,7 +88,7 @@ void Server::processDatagram(const QNetworkDatagram &datagram)
     }
 }
 
-QByteArray Server::processMessage(const QByteArray &data, const QHostAddress &sender, quint16 senderPort)
+QByteArray Server::processMessage(const QByteArray &data)
 {
     QString message = QString::fromUtf8(data).trimmed();
     QString response;
@@ -97,23 +97,25 @@ QByteArray Server::processMessage(const QByteArray &data, const QHostAddress &se
     // Обработка различных команд
     if (command == '1' ) {
         p.setPrintType(1);
-        response = outputString(p);
+        response = "1" + outputString(p);
     }
     else if (command == '2' ){
         p.setPrintType(2);
-        response = outputString(p);
+        response = "2" + outputString(p);
     }
     else if (command == '3'  ) {
         QString A;
         for(int i = 1; message[i] != ' '; i++,message[i] = ' '){
             A+=message[i];
         }
+        message.remove(0, A.size() + 2);
+        qDebug() << message;
         inputString(A,message,&p);
-        response = outputString(p);
+        response = "3" + outputString(p);
     }
     else if (command == '4'  ) {
         number a = p.solve(toComplex(message));
-        response = "значение в точке " + message + "  равно: " + complexOut(a);
+        response = "4значение в точке " + message + "  равно: " + complexOut(a);
     }
 
     return response.toUtf8();

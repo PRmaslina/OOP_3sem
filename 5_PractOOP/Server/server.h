@@ -29,7 +29,7 @@ private:
     quint16 m_port;
     bool m_isRunning;
 
-    QByteArray processMessage(const QByteArray &data, const QHostAddress &sender, quint16 senderPort);
+    QByteArray processMessage(const QByteArray &data);
 };
 
 #endif // SERVER_H
