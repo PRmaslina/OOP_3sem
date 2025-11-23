@@ -10,6 +10,12 @@ Server::Server(QObject *parent)
 
 Server::~Server()
 {
+    QString response = "1Bye";
+    for (int i = 0; i < sessions.size(); i++) {
+        m_udpSocket->writeDatagram(response.toUtf8(), sessions[i]->ipAddress, sessions[i]->port);
+        qDebug() << "Sent response to" << sessions[i]->ipAddress.toString() << ":" << sessions[i]->port
+                 << "-" << response;
+    }
     stopServer();
 }
 
@@ -73,7 +79,7 @@ void Server::processDatagram(const QNetworkDatagram &datagram)
              << ":" << senderPort << "-" << data;
 
     // Обрабатываем сообщение и получаем ответ
-    QByteArray response = processMessage(data);
+    QByteArray response = processMessage(senderAddress, senderPort, data);
 
     // Отправляем ответ
     if (!response.isEmpty()) {
@@ -88,7 +94,7 @@ void Server::processDatagram(const QNetworkDatagram &datagram)
     }
 }
 
-QByteArray Server::processMessage(const QByteArray &data)
+QByteArray Server::processMessage(const QHostAddress senderAddress, const quint16 senderPort, const QByteArray &data)
 {
     QString message = QString::fromUtf8(data).trimmed();
     QString response;
@@ -111,7 +117,7 @@ QByteArray Server::processMessage(const QByteArray &data)
     message = message.trimmed();
 
     Session* currentSession = nullptr;
-    if(command != '5')
+    if(command != '0')
     {
         // Находим сессию
         if (sessionId.toInt() <= sessions.size()) {
@@ -122,16 +128,32 @@ QByteArray Server::processMessage(const QByteArray &data)
             return "Invalid session";
         }
     }
-
-    if (command == '1' ) {
-        currentSession->setPrintType(1);
-        response = "1" + currentSession->getOutputString();
+    if (command == '0'  ) {
+        // Создаем сессию по умолчанию с вещественными числами
+        QString newSessionId = "{" + QString::number(sessions.size() + 1) + "}";
+        Session* newSession = new Session(newSessionId, senderAddress, senderPort, REAL_NUMBERS);
+        sessions.push_back(newSession);
+        response = "0" + newSessionId;
     }
-    else if (command == '2' ){
-        currentSession->setPrintType(2);
+    else if (command == '1') {
+        for (int i = 0; i < sessions.size(); i++) {
+            if (sessions[i]->id == currentSession->id) {
+                qDebug() << "Killed session: " << currentSession->id;
+                sessions.removeAt(i);
+                break;
+            }
+        }
+
+    }
+    else if (command == '2' ) {
+        currentSession->setPrintType(1);
         response = "2" + currentSession->getOutputString();
     }
-    else if (command == '3'  ) {
+    else if (command == '3' ){
+        currentSession->setPrintType(2);
+        response = "3" + currentSession->getOutputString();
+    }
+    else if (command == '4'  ) {
         QString A;
         for(int i = 0; i < message.length() && message[i] != ' '; i++){
             A += message[i];
@@ -139,18 +161,11 @@ QByteArray Server::processMessage(const QByteArray &data)
         }
         message = message.trimmed();
         currentSession->updatePolynom(A, message);
-        response = "3" + currentSession->getOutputString();
-    }
-    else if (command == '4'  ) {
-        QString result = currentSession->solveAtPoint(message);
-        response = "4Значение в точке " + message + " равно: " + result;
+        response = "4" + currentSession->getOutputString();
     }
     else if (command == '5'  ) {
-        // Создаем сессию по умолчанию с вещественными числами
-        QString newSessionId = "{" + QString::number(sessions.size() + 1) + "}";
-        Session* newSession = new Session(newSessionId, REAL_NUMBERS);
-        sessions.push_back(newSession);
-        response = "2" + newSessionId;
+        QString result = currentSession->solveAtPoint(message);
+        response = "5Значение в точке " + message + " равно: " + result;
     }
     else if (command == '6' ) {
         // Смена типа чисел
@@ -158,7 +173,7 @@ QByteArray Server::processMessage(const QByteArray &data)
         NumberType newType = useComplex ? COMPLEX_NUMBERS : REAL_NUMBERS;
 
         // Создаем новую сессию с нужным типом
-        Session* newSession = new Session(currentSession->id, newType);
+        Session* newSession = new Session(currentSession->id, currentSession->ipAddress, currentSession->port, newType);
 
         // Заменяем старую сессию
         for (int i = 0; i < sessions.size(); i++) {

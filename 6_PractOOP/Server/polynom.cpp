@@ -21,8 +21,14 @@ QString outputString(Polynom<double> p) {
             coeff = p.getCoeff(i);
             if (coeff == 0.0) continue;
 
-            out += " + ";
-            out += QString::number(coeff);
+            if (coeff > 0) {
+                out += " + ";
+                out += QString::number(coeff);
+            }
+            else {
+                out += " - ";
+                out += QString::number(-coeff);
+            }
 
             if (i > 0)
                 out+="*x";
@@ -37,7 +43,16 @@ QString outputString(Polynom<double> p) {
 
         for (int i = 0; i < p.getDegree(); i++) {
             double root = p.getRoot(i);
-            out +=" * (x - " + QString::number(root) + ")";
+            out +=" * (x";
+            if (root > 0) {
+                out += " - ";
+                out += QString::number(root);
+            }
+            else {
+                out += " + ";
+                out += QString::number(-root);
+            }
+            out += ")";
         }
         break;
     }

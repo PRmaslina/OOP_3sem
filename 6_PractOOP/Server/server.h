@@ -17,14 +17,18 @@ enum NumberType {
 
 struct Session{
     QString id;
+    QHostAddress ipAddress;
+    quint16 port;
     NumberType numberType;
 
     // Указатели на полиморфные полиномы
     Polynom<double>* realPoly;
     Polynom<TComplex>* complexPoly;
 
-    Session(QString _id, NumberType type) {
+    Session(QString _id, QHostAddress _ipAddress, quint16 _port, NumberType type) {
         id = _id;
+        ipAddress = _ipAddress;
+        port = _port;
         numberType = type;
         if (type == REAL_NUMBERS) {
             realPoly = new Polynom<double>();
@@ -98,7 +102,7 @@ private:
     QUdpSocket *m_udpSocket;
     quint16 m_port;
     bool m_isRunning;
-    QByteArray processMessage(const QByteArray &data);
+    QByteArray processMessage(const QHostAddress senderAddress, const quint16 senderPort, const QByteArray &data);
 };
 
 #endif // SERVER_H
